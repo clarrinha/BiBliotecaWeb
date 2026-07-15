@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Biblioteca Web — Membros</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="header-inner">
+        <a href="/index.html" class="brand"><span class="brand-mark">B</span>Biblioteca Web</a>
+        <nav class="nav">
+          <a href="/index.html" data-page="home">Início</a>
+          <a href="/livros.html" data-page="livros">Livros</a>
+          <a href="/autores.html" data-page="autores">Autores</a>
+          <a href="/categorias.html" data-page="categorias">Categorias</a>
+          <a href="/membros.html" data-page="membros">Membros</a>
+          <a href="/emprestimos.html" data-page="emprestimos">Empréstimos</a>
+          <a href="/sobre.html" data-page="sobre">Sobre</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="page-header">
+        <h1>Membros</h1>
+        <p>Pessoas cadastradas que podem pegar livros emprestados.</p>
+      </div>
+
+      <div class="form-card">
+        <h2>Cadastrar membro</h2>
+        <form id="form-membro">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="nome">Nome *</label>
+              <input type="text" id="nome" required placeholder="Ex.: Ana Silva" />
+            </div>
+            <div class="form-group">
+              <label for="email">Email *</label>
+              <input type="email" id="email" required placeholder="ana@email.com" />
+            </div>
+            <div class="form-group">
+              <label for="telefone">Telefone</label>
+              <input type="text" id="telefone" placeholder="(11) 99999-9999" />
+            </div>
+            <div class="form-group" style="align-self:end;">
+              <button type="submit" class="btn btn-primary">＋ Adicionar membro</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <h2 style="margin-bottom:14px;">Membros cadastrados</h2>
+      <div id="membros" class="loading">Carregando membros…</div>
+    </main>
+
+    <footer class="footer">
+      Projeto acadêmico • Biblioteca Web 
+    </footer>
+
+    <script src="/config.js"></script>
+    <script src="/app.js"></script>
+    <script>
+      markActiveNav("membros");
+
+      async function carregar() {
+        try {
+          showLoading("membros");
+          const rows = await api("/api/membros");
+          if (!rows.length) { showEmpty("membros", "👤", "Nenhum membro cadastrado."); return; }
+          document.getElementById("membros").innerHTML = `
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Nome</th><th>Email</th><th>Telefone</th><th>Cadastro</th></tr></thead>
+                <tbody>
+                  ${rows.map((m) => `
+                    <tr>
+                      <td><strong>${escapeHtml(m.nome)}</strong></td>
+                      <td>${escapeHtml(m.email)}</td>
+                      <td>${escapeHtml(m.telefone || "—")}</td>
+                      <td>${formatDate(m.data_cadastro)}</td>
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
+            </div>`;
+        } catch (e) {
+          showError("membros", e.message);
+        }
+      }
+
+      document.getElementById("form-membro").addEventListener("submit", async (ev) => {
+        ev.preventDefault();
+        const body = {
+          nome: document.getElementById("nome").value.trim(),
+          email: document.getElementById("email").value.trim(),
+          telefone: document.getElementById("telefone").value.trim() || undefined,
+        };
+        if (!body.nome || !body.email) { toast("Nome e email são obrigatórios.", true); return; }
+        try {
+          await api("/api/membros", { method: "POST", body: JSON.stringify(body) });
+          toast("Membro cadastrado!");
+          ev.target.reset();
+          carregar();
+        } catch (e) { toast(e.message, true); }
+      });
+
+      carregar();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Biblioteca Web — Sobre</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="header-inner">
+        <a href="/index.html" class="brand"><span class="brand-mark">B</span>Biblioteca Web</a>
+        <nav class="nav">
+          <a href="/index.html" data-page="home">Início</a>
+          <a href="/livros.html" data-page="livros">Livros</a>
+          <a href="/autores.html" data-page="autores">Autores</a>
+          <a href="/categorias.html" data-page="categorias">Categorias</a>
+          <a href="/membros.html" data-page="membros">Membros</a>
+          <a href="/emprestimos.html" data-page="emprestimos">Empréstimos</a>
+          <a href="/sobre.html" data-page="sobre">Sobre</a>
+        </nav>
+      </div>
+    </header>
+
+<main class="container">
+  <div class="page-header">
+    <h1>Sobre o Sistema</h1>
+    <p>
+      O Sistema de Gerenciamento de Biblioteca Online foi desenvolvido para
+      facilitar o controle do acervo, o gerenciamento de membros e o
+      acompanhamento de empréstimos e reservas de livros de forma simples,
+      organizada e eficiente.
+    </p>
+  </div>
+
+  <section class="sobre-grid">
+
+    <div class="info-card">
+      <h3> Gestão de Livros</h3>
+      <ul>
+        <li>Cadastro e atualização de livros</li>
+        <li>Controle de disponibilidade</li>
+        <li>Consulta rápida ao acervo</li>
+        <li>Organização por autores e categorias</li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <h3> Gestão de Membros</h3>
+      <ul>
+        <li>Cadastro de usuários</li>
+        <li>Atualização de informações</li>
+        <li>Consulta de histórico</li>
+        <li>Controle de registros ativos</li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <h3> Empréstimos e Reservas</h3>
+      <ul>
+        <li>Registro de empréstimos</li>
+        <li>Controle de devoluções</li>
+        <li>Reserva de livros</li>
+        <li>Acompanhamento das movimentações</li>
+      </ul>
+    </div>
+
+  </section>
+
+  <section style="margin-top: 40px;">
+    <h2>Objetivo do Projeto</h2>
+    <p>
+      O objetivo deste sistema é modernizar o gerenciamento de bibliotecas,
+      proporcionando maior organização do acervo e facilitando o acesso às
+      informações por meio de uma plataforma digital intuitiva e eficiente.
+    </p>
+  </section>
+
+  <section style="margin-top: 40px;">
+    <h2>Principais Funcionalidades</h2>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Módulo</th>
+            <th>Descrição</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Livros</strong></td>
+            <td>Gerenciamento completo do acervo bibliográfico.</td>
+          </tr>
+          <tr>
+            <td><strong>Autores</strong></td>
+            <td>Cadastro e organização dos autores das obras.</td>
+          </tr>
+          <tr>
+            <td><strong>Categorias</strong></td>
+            <td>Classificação dos livros por gênero ou área.</td>
+          </tr>
+          <tr>
+            <td><strong>Membros</strong></td>
+            <td>Controle dos usuários cadastrados.</td>
+          </tr>
+          <tr>
+            <td><strong>Empréstimos</strong></td>
+            <td>Registro e acompanhamento dos empréstimos.</td>
+          </tr>
+          <tr>
+            <td><strong>Reservas</strong></td>
+            <td>Gerenciamento das reservas de livros.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+      <section style="margin-top:32px;">
+        <h2 style="margin-bottom:14px;">Endpoints da API</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Método</th><th>Rota</th><th>Caso de uso</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge verde">GET</span></td><td><code>/api/autores</code></td><td>Listar autores</td></tr>
+              <tr><td><span class="badge ouro">POST</span></td><td><code>/api/autores</code></td><td>Cadastrar autor</td></tr>
+              <tr><td><span class="badge verde">GET</span></td><td><code>/api/categorias</code></td><td>Listar categorias</td></tr>
+              <tr><td><span class="badge ouro">POST</span></td><td><code>/api/categorias</code></td><td>Cadastrar categoria</td></tr>
+              <tr><td><span class="badge verde">GET</span></td><td><code>/api/livros</code></td><td>Listar livros (com autor e categoria)</td></tr>
+              <tr><td><span class="badge ouro">POST</span></td><td><code>/api/livros</code></td><td>Cadastrar livro</td></tr>
+              <tr><td><span class="badge verde">GET</span></td><td><code>/api/livros/:id</code></td><td>Detalhar livro</td></tr>
+              <tr><td><span class="badge verde">GET</span></td><td><code>/api/membros</code></td><td>Listar membros</td></tr>
+              <tr><td><span class="badge ouro">POST</span></td><td><code>/api/membros</code></td><td>Cadastrar membro</td></tr>
+              <tr><td><span class="badge verde">GET</span></td><td><code>/api/emprestimos</code></td><td>Listar empréstimos (com joins)</td></tr>
+              <tr><td><span class="badge ouro">POST</span></td><td><code>/api/emprestimos</code></td><td>Registrar empréstimo</td></tr>
+              <tr><td><span class="badge vermelho">PATCH</span></td><td><code>/api/emprestimos/:id/devolver</code></td><td>Devolver livro</td></tr>
+              <tr><td><span class="badge verde">GET</span></td><td><code>/api/emprestimos/ativos</code></td><td>Empréstimos em aberto</td></tr>
+              <tr><td><span class="badge verde">GET</span></td><td><code>/api/dashboard</code></td><td>Estatísticas e relatórios</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    
+    </main>
+
+    <footer class="footer">
+      Projeto acadêmico • Biblioteca Web 
+    </footer>
+
+    <script src="/config.js"></script>
+    <script src="/app.js"></script>
+    <script>
+      markActiveNav("sobre");
+    </script>
+  </body>
+</html>

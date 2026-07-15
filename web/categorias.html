@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Biblioteca Web — Categorias</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="header-inner">
+        <a href="/index.html" class="brand"><span class="brand-mark">B</span>Biblioteca Web</a>
+        <nav class="nav">
+          <a href="/index.html" data-page="home">Início</a>
+          <a href="/livros.html" data-page="livros">Livros</a>
+          <a href="/autores.html" data-page="autores">Autores</a>
+          <a href="/categorias.html" data-page="categorias">Categorias</a>
+          <a href="/membros.html" data-page="membros">Membros</a>
+          <a href="/emprestimos.html" data-page="emprestimos">Empréstimos</a>
+          <a href="/sobre.html" data-page="sobre">Sobre</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="page-header">
+        <h1>Categorias</h1>
+        <p>Gêneros literários que organizam o acervo da biblioteca.</p>
+      </div>
+
+      <div class="form-card">
+        <h2>Cadastrar categoria</h2>
+        <form id="form-cat">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="nome">Nome *</label>
+              <input type="text" id="nome" required placeholder="Ex.: Poesia" />
+            </div>
+            <div class="form-group full">
+              <label for="descricao">Descrição</label>
+              <input type="text" id="descricao" placeholder="Breve descrição do gênero" />
+            </div>
+            <div class="form-group full">
+              <button type="submit" class="btn btn-primary">＋ Adicionar categoria</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <h2 style="margin-bottom:14px;">Categorias cadastradas</h2>
+      <div id="categorias" class="grid grid-3">
+        <div class="loading">Carregando categorias…</div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      Projeto acadêmico • Biblioteca Web • HTML + CSS + JS + API REST + PostgreSQL/SQLite
+    </footer>
+
+    <script src="/config.js"></script>
+    <script src="/app.js"></script>
+    <script>
+      markActiveNav("categorias");
+
+      async function carregar() {
+        try {
+          showLoading("categorias");
+          const rows = await api("/api/categorias");
+          if (!rows.length) { showEmpty("categorias", "🏷", "Nenhuma categoria cadastrada."); return; }
+          document.getElementById("categorias").innerHTML = rows.map((c) => `
+            <div class="card">
+              <h3>${escapeHtml(c.nome)}</h3>
+              <p class="meta">${escapeHtml(c.descricao || "Sem descrição")}</p>
+              <span class="badge verde">Categoria</span>
+            </div>
+          `).join("");
+        } catch (e) {
+          showError("categorias", e.message);
+        }
+      }
+
+      document.getElementById("form-cat").addEventListener("submit", async (ev) => {
+        ev.preventDefault();
+        const body = {
+          nome: document.getElementById("nome").value.trim(),
+          descricao: document.getElementById("descricao").value.trim() || undefined,
+        };
+        if (!body.nome) { toast("Nome é obrigatório.", true); return; }
+        try {
+          await api("/api/categorias", { method: "POST", body: JSON.stringify(body) });
+          toast("Categoria cadastrada!");
+          ev.target.reset();
+          carregar();
+        } catch (e) { toast(e.message, true); }
+      });
+
+      carregar();
+    </script>
+  </body>
+</html>

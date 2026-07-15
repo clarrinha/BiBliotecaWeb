@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Biblioteca Web — Autores</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="header-inner">
+        <a href="/index.html" class="brand"><span class="brand-mark">B</span>Biblioteca Web</a>
+        <nav class="nav">
+          <a href="/index.html" data-page="home">Início</a>
+          <a href="/livros.html" data-page="livros">Livros</a>
+          <a href="/autores.html" data-page="autores">Autores</a>
+          <a href="/categorias.html" data-page="categorias">Categorias</a>
+          <a href="/membros.html" data-page="membros">Membros</a>
+          <a href="/emprestimos.html" data-page="emprestimos">Empréstimos</a>
+          <a href="/sobre.html" data-page="sobre">Sobre</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="page-header">
+        <h1>Autores</h1>
+        <p>Escritores cadastrados no sistema, com nacionalidade e data de nascimento.</p>
+      </div>
+
+      <div class="form-card">
+        <h2>Cadastrar autor</h2>
+        <form id="form-autor">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="nome">Nome *</label>
+              <input type="text" id="nome" required placeholder="Ex.: Machado de Assis" />
+            </div>
+            <div class="form-group">
+              <label for="nacionalidade">Nacionalidade</label>
+              <input type="text" id="nacionalidade" placeholder="Ex.: Brasil" />
+            </div>
+            <div class="form-group">
+              <label for="nascimento">Data de nascimento</label>
+              <input type="date" id="nascimento" />
+            </div>
+            <div class="form-group" style="align-self:end;">
+              <button type="submit" class="btn btn-primary">＋ Adicionar autor</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <h2 style="margin-bottom:14px;">Lista de autores</h2>
+      <div id="autores" class="grid grid-3">
+        <div class="loading">Carregando autores…</div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      Projeto acadêmico • Biblioteca Web • HTML + CSS + JS + API REST + PostgreSQL/SQLite
+    </footer>
+
+    <script src="/config.js"></script>
+    <script src="/app.js"></script>
+    <script>
+      markActiveNav("autores");
+
+      async function carregar() {
+        try {
+          showLoading("autores");
+          const rows = await api("/api/autores");
+          if (!rows.length) { showEmpty("autores", "✍", "Nenhum autor cadastrado."); return; }
+          document.getElementById("autores").innerHTML = rows.map((a) => `
+            <div class="card">
+              <h3>${escapeHtml(a.nome)}</h3>
+              <p class="meta">
+                ${escapeHtml(a.nacionalidade || "Nacionalidade desconhecida")}<br/>
+                Nascimento: ${formatDate(a.data_nascimento)}
+              </p>
+              <span class="badge ouro">Autor</span>
+            </div>
+          `).join("");
+        } catch (e) {
+          showError("autores", e.message);
+        }
+      }
+
+      document.getElementById("form-autor").addEventListener("submit", async (ev) => {
+        ev.preventDefault();
+        const body = {
+          nome: document.getElementById("nome").value.trim(),
+          nacionalidade: document.getElementById("nacionalidade").value.trim() || undefined,
+          data_nascimento: document.getElementById("nascimento").value || undefined,
+        };
+        if (!body.nome) { toast("Nome é obrigatório.", true); return; }
+        try {
+          await api("/api/autores", { method: "POST", body: JSON.stringify(body) });
+          toast("Autor cadastrado!");
+          ev.target.reset();
+          carregar();
+        } catch (e) { toast(e.message, true); }
+      });
+
+      carregar();
+    </script>
+  </body>
+</html>

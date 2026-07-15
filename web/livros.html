@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Biblioteca Web — Livros</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="header-inner">
+        <a href="/index.html" class="brand"><span class="brand-mark">B</span>Biblioteca Web</a>
+        <nav class="nav">
+          <a href="/index.html" data-page="home">Início</a>
+          <a href="/livros.html" data-page="livros">Livros</a>
+          <a href="/autores.html" data-page="autores">Autores</a>
+          <a href="/categorias.html" data-page="categorias">Categorias</a>
+          <a href="/membros.html" data-page="membros">Membros</a>
+          <a href="/emprestimos.html" data-page="emprestimos">Empréstimos</a>
+          <a href="/sobre.html" data-page="sobre">Sobre</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <div class="page-header">
+        <h1>Acervo de Livros</h1>
+        <p>Catálogo completo com autor e categoria de cada obra.</p>
+      </div>
+
+      <div class="form-card">
+        <h2>Cadastrar novo livro</h2>
+        <form id="form-livro">
+          <div class="form-grid">
+            <div class="form-group full">
+              <label for="titulo">Título *</label>
+              <input type="text" id="titulo" required placeholder="Ex.: Dom Casmurro" />
+            </div>
+            <div class="form-group">
+              <label for="ano">Ano de publicação</label>
+              <input type="number" id="ano" placeholder="Ex.: 1899" />
+            </div>
+            <div class="form-group">
+              <label for="autor">Autor *</label>
+              <select id="autor" required></select>
+            </div>
+            <div class="form-group">
+              <label for="categoria">Categoria *</label>
+              <select id="categoria" required></select>
+            </div>
+            <div class="form-group">
+              <label for="quantidade">Quantidade</label>
+              <input type="number" id="quantidade" value="1" min="0" />
+            </div>
+            <div class="form-group full" style="align-self:end;">
+              <button type="submit" class="btn btn-primary">＋ Adicionar livro</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <h2 style="margin-bottom:14px;">Obras cadastradas</h2>
+      <div id="livros" class="grid grid-3">
+        <div class="loading">Carregando livros…</div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      Projeto acadêmico • Biblioteca Web • HTML + CSS + JS + API REST + PostgreSQL/SQLite
+    </footer>
+
+    <script src="/config.js"></script>
+    <script src="/app.js"></script>
+    <script>
+      markActiveNav("livros");
+
+      async function carregarSelects() {
+        const [autores, categorias] = await Promise.all([
+          api("/api/autores"),
+          api("/api/categorias"),
+        ]);
+        document.getElementById("autor").innerHTML =
+          `<option value="">Selecione…</option>` +
+          autores.map((a) => `<option value="${a.id}">${escapeHtml(a.nome)}</option>`).join("");
+        document.getElementById("categoria").innerHTML =
+          `<option value="">Selecione…</option>` +
+          categorias.map((c) => `<option value="${c.id}">${escapeHtml(c.nome)}</option>`).join("");
+      }
+
+      async function carregarLivros() {
+        try {
+          showLoading("livros");
+          const rows = await api("/api/livros");
+          if (!rows.length) { showEmpty("livros", "📖", "Nenhum livro cadastrado."); return; }
+          document.getElementById("livros").innerHTML = rows.map((l) => `
+            <div class="card">
+              <h3>${escapeHtml(l.titulo)}</h3>
+              <p class="meta">${escapeHtml(l.autor_nome)} • ${l.ano_publicacao || "Ano desconhecido"}</p>
+              <div style="margin-bottom:12px;">
+                <span class="badge verde">${escapeHtml(l.categoria_nome)}</span>
+                <span class="badge">${l.quantidade} ex.</span>
+              </div>
+              <a href="#" class="btn btn-sm btn-ouro">Ver detalhes</a>
+            </div>
+          `).join("");
+        } catch (e) {
+          showError("livros", e.message);
+        }
+      }
+
+      document.getElementById("form-livro").addEventListener("submit", async (ev) => {
+        ev.preventDefault();
+        const body = {
+          titulo: document.getElementById("titulo").value.trim(),
+          ano_publicacao: Number(document.getElementById("ano").value) || null,
+          autor_id: Number(document.getElementById("autor").value),
+          categoria_id: Number(document.getElementById("categoria").value),
+          quantidade: Number(document.getElementById("quantidade").value) || 1,
+        };
+        if (!body.titulo || !body.autor_id || !body.categoria_id) {
+          toast("Preencha os campos obrigatórios.", true);
+          return;
+        }
+        try {
+          await api("/api/livros", { method: "POST", body: JSON.stringify(body) });
+          toast("Livro cadastrado com sucesso!");
+          ev.target.reset();
+          carregarLivros();
+        } catch (e) {
+          toast(e.message, true);
+        }
+      });
+
+      Promise.all([carregarSelects(), carregarLivros()]).catch((e) => toast(e.message, true));
+    </script>
+  </body>
+</html>

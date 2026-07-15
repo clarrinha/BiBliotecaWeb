@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Biblioteca Web — Início</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="header-inner">
+        <a href="/index.html" class="brand">
+          <span class="brand-mark">B</span>
+          Portal do Saber 
+        </a>
+        <nav class="nav">
+          <a href="/index.html" data-page="home">Início</a>
+          <a href="/livros.html" data-page="livros">Livros</a>
+          <a href="/autores.html" data-page="autores">Autores</a>
+          <a href="/categorias.html" data-page="categorias">Categorias</a>
+          <a href="/membros.html" data-page="membros">Membros</a>
+          <a href="/emprestimos.html" data-page="emprestimos">Empréstimos</a>
+          <a href="/sobre.html" data-page="sobre">Sobre</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="hero">
+        <h1>Gerencie sua biblioteca com elegância</h1>
+        <p>Cadastre livros, autores, membros e controle empréstimos num sistema simples, completo e funcional.</p>
+        <div class="hero-actions">
+          <a href="/livros.html" class="btn btn-ouro">Ver acervo</a>
+          <a href="/emprestimos.html" class="btn btn-primary" style="background:rgba(255,255,255,.15);color:var(--creme);">Empréstimos</a>
+        </div>
+      </section>
+
+      <section>
+        <h2 style="margin-bottom:18px;">Visão geral</h2>
+        <div id="stats" class="grid grid-4">
+          <div class="loading">Carregando estatísticas…</div>
+        </div>
+      </section>
+
+      <section style="margin-top:36px;">
+        <div class="grid grid-2">
+          <div class="card">
+            <h3>Livros por categoria</h3>
+            <p class="meta">Distribuição do acervo por gênero literário.</p>
+            <div id="bar-categorias"></div>
+          </div>
+          <div class="card">
+            <h3>Top membros</h3>
+            <p class="meta">Membros com mais empréstimos registrados.</p>
+            <div id="top-membros"></div>
+          </div>
+        </div>
+      </section>
+
+      <section style="margin-top:36px;">
+        <h2 style="margin-bottom:14px;">Empréstimos em aberto</h2>
+        <div id="abertos"></div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      Projeto acadêmico • Biblioteca Web 
+    </footer>
+
+    <script src="/config.js"></script>
+    <script src="/app.js"></script>
+    <script>
+      markActiveNav("home");
+
+      async function carregarDashboard() {
+        try {
+          showLoading("stats");
+          const data = await api("/api/dashboard");
+
+          const stats = [
+            { label: "Livros", num: data.totalLivros },
+            { label: "Membros", num: data.totalMembros },
+            { label: "Autores", num: data.totalAutores },
+            { label: "Categorias", num: data.totalCategorias },
+            { label: "Empréstimos abertos", num: data.emprestimosAbertos },
+            { label: "Devolvidos", num: data.emprestimosDevolvidos },
+          ];
+          document.getElementById("stats").innerHTML = stats.map((s) => `
+            <div class="card stat-card">
+              <div class="stat-num">${s.num}</div>
+              <div class="stat-label">${s.label}</div>
+            </div>
+          `).join("");
+
+          // Barras de livros por categoria
+          const maxCat = Math.max(...data.livrosPorCategoria.map((c) => c.total), 1);
+          document.getElementById("bar-categorias").innerHTML = data.livrosPorCategoria.map((c) => `
+            <div class="bar-row">
+              <div class="bar-label"><span>${escapeHtml(c.categoria)}</span><span>${c.total}</span></div>
+              <div class="bar"><div class="bar-fill" style="width:${(c.total / maxCat) * 100}%"></div></div>
+            </div>
+          `).join("");
+
+          // Top membros
+          const maxM = Math.max(...data.emprestimosPorMembro.map((m) => m.total), 1);
+          document.getElementById("top-membros").innerHTML = data.emprestimosPorMembro.map((m) => `
+            <div class="bar-row">
+              <div class="bar-label"><span>${escapeHtml(m.membro)}</span><span>${m.total}</span></div>
+              <div class="bar"><div class="bar-fill" style="width:${(m.total / maxM) * 100}%"></div></div>
+            </div>
+          `).join("");
+        } catch (e) {
+          showError("stats", e.message);
+        }
+      }
+
+      async function carregarAbertos() {
+        try {
+          showLoading("abertos");
+          const rows = await api("/api/emprestimos/ativos");
+          if (!rows.length) { showEmpty("abertos", "✓", "Nenhum empréstimo em aberto."); return; }
+          document.getElementById("abertos").innerHTML = `
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Membro</th><th>Livro</th><th>Emprestado em</th><th>Devolução prevista</th></tr></thead>
+                <tbody>
+                  ${rows.map((r) => `
+                    <tr>
+                      <td>${escapeHtml(r.membro_nome)}</td>
+                      <td>${escapeHtml(r.livro_titulo)}</td>
+                      <td>${formatDate(r.data_emprestimo)}</td>
+                      <td>${formatDate(r.data_devolucao_prevista)}</td>
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
+            </div>`;
+        } catch (e) {
+          showError("abertos", e.message);
+        }
+      }
+
+      carregarDashboard();
+      carregarAbertos();
+    </script>
+  </body>
+</html>
