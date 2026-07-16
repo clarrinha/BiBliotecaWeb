@@ -82,6 +82,9 @@ O sistema permite o gerenciamento completo do acervo bibliográfico, incluindo c
 
 O sistema está dividido em duas camadas principais:
 
+### Deploy
+https://bibliotecaweb-91t1.onrender.com
+
 ### Front-end (`web/`)
 
 Responsável pela interface do usuário, páginas HTML, estilização, navegação e comunicação com a API.
