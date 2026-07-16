@@ -79,11 +79,9 @@ O sistema permite o gerenciamento completo do acervo bibliográfico, incluindo c
 ---
 
 #  Arquitetura do Projeto
+### Deploy
 
 O sistema está dividido em duas camadas principais:
-
-### Deploy
-https://bibliotecaweb-91t1.onrender.com
 
 ### Front-end (`web/`)
 
