@@ -272,6 +272,4 @@ Projeto desenvolvido para fins acadêmicos na disciplina de Programação Web.
 
 - Maria Clara Nascimento
 
-# Diagrama de Classes e Casos de Uso
 
-![alt text](image.png)
